@@ -4,13 +4,18 @@ import (
 	"fmt"
 )
 
+// Market is used to track our inventory of products
+// and our active discounts.
 type Market struct {
-	name string
+	name      string
 	inventory map[string]Product
 	discounts map[string]Discount
 }
 
-func NewMarket(name string) *Market{
+// NewMarket is a constructor for a Market.  It will load our
+// static list of active discounts/specials and populate a
+// sample inventory.  These could be loaded by CSV.
+func NewMarket(name string) *Market {
 	fm := Market{name: name}
 	fm.inventory = loadInventory()
 	fm.discounts = loadDiscounts()
@@ -21,7 +26,8 @@ func (market Market) String() string {
 	return fmt.Sprintf("%s", market.name)
 }
 
-// Load the expected inventory stock.
+// Load the expected inventory stock with the static items
+// from the coding prompt.
 func loadInventory() map[string]Product {
 	inventory := make(map[string]Product)
 
@@ -34,12 +40,13 @@ func loadInventory() map[string]Product {
 	return inventory
 }
 
-// Discount information for farmers market.
+// Discount information for farmers market broken out into a generalized discount format.  The
+// entries below are the discounts taken from the coding prompt, but transformed to a general format.
 // qualifyingItem, qualifyingItemQuantity, discountedItem, discountedItemQuantity, discountAmountPerItem, limit
-// CF1, 1, CF1, 1, CF1.price, 0 		//1. BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
-// AP1, 3, AP1, 0, AP1.price*0.25, 0 	//2. APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
-// CH1, 1, MK1, 1, MK1.price, 1			//3. CHMK -- Purchase a box of Chai and get milk free. (Limit 1)
-// OM1, 1, AP1, 1, AP1.price*0.50, 0	//4. APOM -- Purchase a bag of Oatmeal and get 50% off a bag of Apples
+// CF1, 1, CF1, 1, 1, 0 	//1. BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
+// AP1, 3, AP1, 0, 0.25, 0 	//2. APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
+// CH1, 1, MK1, 1, 1, 1		//3. CHMK -- Purchase a box of Chai and get milk free. (Limit 1)
+// OM1, 1, AP1, 1, 0.50, 0	//4. APOM -- Purchase a bag of Oatmeal and get 50% off a bag of Apples
 func loadDiscounts() map[string]Discount {
 	discounts := make(map[string]Discount)
 
@@ -51,6 +58,8 @@ func loadDiscounts() map[string]Discount {
 	return discounts
 }
 
+// printBasket pretty prints the current shopping basket
+// to easily see quantities of given items.
 func printBasket(basket []string) {
 	var total int = 0
 	basketQuantity := listToQuantityMap(basket)
@@ -66,6 +75,8 @@ func printBasket(basket []string) {
 	fmt.Println("Total:\t\t", total)
 }
 
+// fillBasket validates a slice of items against our Market
+// inventory.  Valid items are returned as a slice.
 func fillBasket(items []string, market Market) []string {
 	var result []string
 
@@ -84,8 +95,9 @@ func fillBasket(items []string, market Market) []string {
 	return result
 }
 
-// Looks up the basePrice of a product from a market's inventory.
-func (market Market) GetBasePrice(product string) float32{
+// GetBasePrice provides a look up if the basePrice of a product
+// from the Market inventory.
+func (market Market) GetBasePrice(product string) float32 {
 	if value, ok := market.inventory[product]; ok {
 		return value.basePrice
 	} else {
@@ -93,7 +105,9 @@ func (market Market) GetBasePrice(product string) float32{
 	}
 }
 
-func listToQuantityMap(inputSlice []string) map[string]int{
+// listToQuantityMap is a helper function to get the count of each
+// item in a list as a map.
+func listToQuantityMap(inputSlice []string) map[string]int {
 	var quantityMap = make(map[string]int)
 
 	for key := range inputSlice {

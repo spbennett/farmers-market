@@ -1,24 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"log"
 	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
 )
 
 var items []string
 
+// Message stores IDs from incoming HTTP messages
+// {"id": "CF1"}
 type Message struct {
-	Id   string  `json:"id"`
+	id string `json:"id"`
 }
 
+// Serve two main paths: /add and /checkout.
 func main() {
 	http.HandleFunc("/add", basketHandler)
 	http.HandleFunc("/checkout", checkoutHandler)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
+// checkoutHandler takes an existing list of items,
+// validates them into a shopping basket, then
+// processes discounts and displays output.
 func checkoutHandler(w http.ResponseWriter, r *http.Request) {
 	fm := NewMarket("The Farmers Market")
 
@@ -30,6 +36,9 @@ func checkoutHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, register.String())
 }
 
+// basketHandler takes ids from json and stores them
+// in our list of items.  These ids will be thrown away
+// later if they are not products in Market's inventory.
 func basketHandler(w http.ResponseWriter, r *http.Request) {
 	reqError := "Example request: {\"id\": \"CF1\"}"
 	var msg Message
@@ -43,13 +52,8 @@ func basketHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, reqError, 400)
 		return
 	}
-	fmt.Println(fmt.Sprintf("%s received", msg.Id))
+	fmt.Println(fmt.Sprintf("%s received", msg.id))
 
 	// Append new item to list.
-	items = append(items, msg.Id)
+	items = append(items, msg.id)
 }
-
-
-
-
-

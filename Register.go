@@ -5,10 +5,12 @@ import (
 	"strings"
 )
 
+// Register stores our itemized bill with discounts/specials.
 type Register struct {
 	lines []Line
 }
 
+// Line represents one possible entry in our itemized bill.
 type Line struct {
 	item          string
 	itemBasePrice float32
@@ -16,11 +18,13 @@ type Line struct {
 	discountPrice float32
 }
 
+// Lines returns the lines field of the given Register.
 func Lines(register Register) []Line {
 	return register.lines
 }
 
-func (register Register) GetTotal() float32{
+// GetTotal returns the current total for a register.
+func (register Register) GetTotal() float32 {
 	var total float32 = 0
 	var lines = register.lines
 
@@ -33,7 +37,8 @@ func (register Register) GetTotal() float32{
 	return total
 }
 
-
+// Pretty print the register contents to match the formatting in the code
+// prompt.
 func (register Register) String() string {
 	var total float32 = 0
 	var lines = register.lines
@@ -53,7 +58,7 @@ func (register Register) String() string {
 		if discountPrice == 0 {
 			builder.WriteString(fmt.Sprintf("\t%s\t\n", discount))
 		} else {
-			builder.WriteString(fmt.Sprintf("\t%s\t%6.2f\n",discount, discountPrice))
+			builder.WriteString(fmt.Sprintf("\t%s\t%6.2f\n", discount, discountPrice))
 		}
 		total += itemBasePrice + discountPrice
 	}
@@ -62,7 +67,10 @@ func (register Register) String() string {
 	return builder.String()
 }
 
-
+// checkout transforms a grocery basket into a receipt by checking the basket
+// for each active discount/special.  As specials are applied, items are moved
+// from basket to register.  Any remaining items after discount are tallied up
+// into the receipt.
 func checkout(basket []string, market Market) Register {
 	discounts := market.discounts
 	inventory := market.inventory
@@ -83,7 +91,7 @@ func checkout(basket []string, market Market) Register {
 		var discountPerDiscountedItem = discount.discountPerDiscountedItem
 
 		// Check if enough qualifying items are found.
-		if basketQuantity[qualifyingItem] >= qualifyingItemQuantity && basketQuantity[discountedItem] > 0  {
+		if basketQuantity[qualifyingItem] >= qualifyingItemQuantity && basketQuantity[discountedItem] > 0 {
 			var qualifyingItemBasePrice = inventory[qualifyingItem].basePrice
 			var discountItemBasePrice = inventory[discountedItem].basePrice
 			var discountItemQuantity = discount.discountedItemQuantity
@@ -92,14 +100,14 @@ func checkout(basket []string, market Market) Register {
 			if discountItemQuantity == 0 {
 				var discountPrice = discount.discountPerDiscountedItem * discountItemBasePrice
 				for i := basketQuantity[qualifyingItem]; i > 0; i-- {
-					var entry = Line{qualifyingItem, qualifyingItemBasePrice,discount.id, discountPrice * -1}
+					var entry = Line{qualifyingItem, qualifyingItemBasePrice, discount.id, discountPrice * -1}
 					register.lines = append(register.lines, entry)
 					basketQuantity[qualifyingItem]--
 				}
 			} else {
 				var discountPrice = discountPerDiscountedItem * float32(discountItemQuantity) * discountItemBasePrice
 
-				var entry = Line{qualifyingItem, qualifyingItemBasePrice,discount.id, discountPrice * -1}
+				var entry = Line{qualifyingItem, qualifyingItemBasePrice, discount.id, discountPrice * -1}
 				register.lines = append(register.lines, entry)
 
 				// Remove discounted items from being counted twice.
@@ -122,7 +130,7 @@ func checkout(basket []string, market Market) Register {
 			var item = key
 			var basePrice = inventory[item].basePrice
 
-			var entry = Line{item, basePrice,"", 0}
+			var entry = Line{item, basePrice, "", 0}
 			register.lines = append(register.lines, entry)
 		}
 	}
