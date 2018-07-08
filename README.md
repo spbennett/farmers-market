@@ -9,24 +9,29 @@ This app can be distributed as a docker container.  Use the included build scrip
 ./build.sh
 ```
 
-If successful, the docker container will be launched by the docker daemon on the localhost.  Try to hit the endpoint with the usage instructions below.
+If successful, the docker container will be launched by the docker daemon on the localhost.
 
 ## Usage
 
-Once the app is running, you can use the following two functions.
+With the app running, the following two methods can be used together.
 
 ### Add
 
-Add items to your shopping basket with the **/add** path.
+Add items to your shopping basket by sending data to the **/add** path.
+
 ```shell
 curl localhost:8080/add -d '{"id": "CF1"}'
 ```
 
 ### Checkout
 
-When you are done adding items, you can checkout and see your discounts applied using the **/checkout** path.
+When you are done adding items, you can complete your transaction which will show your discounts applied.
+ 
+Use the **/checkout** path.
+
 ```shell
 curl localhost:8080/checkout
+
 Item		Price
 ----		----
 CF1 	 	 11.23
