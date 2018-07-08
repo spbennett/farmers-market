@@ -23,8 +23,8 @@ func TestBaskets(t *testing.T) {
 	// Fill the shopping basket with items from testBaskets.
 	for _, value := range testData {
 		items := value.inputItems
-		basket := fillBasket(items, *fm)
-		register := checkout(basket, *fm)
+		basket := FillBasket(items, *fm)
+		register := Checkout(basket, *fm)
 		actual := register.GetTotal()
 		if actual != value.expected {
 			t.Errorf("Basket(%s): expected %f, actual %f", value.inputItems, value.expected, actual)
