@@ -71,20 +71,21 @@ func (register Register) String() string {
 // for each active discount/special.  As specials are applied, items are moved
 // from basket to register.  Any remaining items after discount are tallied up
 // into the receipt.
-func checkout(basket []string, market Market) Register {
+func Checkout(basket []string, market Market) Register {
 	discounts := market.discounts
 	inventory := market.inventory
 	var register Register
 
-	basketQuantity := listToQuantityMap(basket)
+	// Transform basket list to map of counts.
+	basketQuantity := ListToQuantityMap(basket)
 
-	// Iterate through each discount and apply to our basket.
+	// Iterate through each discount and consume discounted items from the basket.
 	for key := range discounts {
 		lines := processDiscount(discounts[key], basketQuantity, inventory)
 		register.lines = append(register.lines, lines...)
 	}
 
-	// Zero out remaining basket items with no discount.
+	// Consume remaining basket items without a discount.
 	for key := range basketQuantity {
 		for i := 0; i < basketQuantity[key]; i++ {
 			var item = key
@@ -98,8 +99,8 @@ func checkout(basket []string, market Market) Register {
 	return register
 }
 
-// processDiscount takes basket items that qualify for the discount and moves them to registry entries.
-// Remaining items are left in basket for other discounts.
+// processDiscount takes basket items that qualify for the discount and moves them to registry entries.  Remaining
+// items are left in basket for other discounts.
 func processDiscount(discount Discount, basketQuantity map[string]int, inventory map[string]Product) []Line {
 	var lines []Line
 	var entry Line

@@ -29,10 +29,11 @@ func checkoutHandler(w http.ResponseWriter, r *http.Request) {
 	fm := NewMarket("The Farmers Market")
 
 	// Move added items to the shopping basket.
-	basket := fillBasket(items, *fm)
+	basket := FillBasket(items, *fm)
 	items = nil
 
-	register := checkout(basket, *fm)
+	// Perform checkout and display result as response.
+	register := Checkout(basket, *fm)
 	fmt.Fprintf(w, register.String())
 }
 

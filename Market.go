@@ -60,9 +60,9 @@ func loadDiscounts() map[string]Discount {
 
 // printBasket pretty prints the current shopping basket
 // to easily see quantities of given items.
-func printBasket(basket []string) {
+func PrintBasket(basket []string) {
 	var total int
-	basketQuantity := listToQuantityMap(basket)
+	basketQuantity := ListToQuantityMap(basket)
 
 	// Print contents of basket
 	fmt.Println("Item\t\tQuantity")
@@ -77,7 +77,7 @@ func printBasket(basket []string) {
 
 // fillBasket validates a slice of items against our Market
 // inventory.  Valid items are returned as a slice.
-func fillBasket(items []string, market Market) []string {
+func FillBasket(items []string, market Market) []string {
 	var result []string
 
 	inventory := market.inventory
@@ -107,7 +107,7 @@ func (market Market) GetBasePrice(product string) float32 {
 
 // listToQuantityMap is a helper function to get the count of each
 // item in a list as a map.
-func listToQuantityMap(inputSlice []string) map[string]int {
+func ListToQuantityMap(inputSlice []string) map[string]int {
 	var quantityMap = make(map[string]int)
 
 	for key := range inputSlice {
