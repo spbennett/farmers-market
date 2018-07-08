@@ -13,6 +13,8 @@ var testData = []struct {
 	{[]string{"MK1", "AP1"}, 10.75},
 	{[]string{"CF1", "CF1"}, 11.23},
 	{[]string{"AP1", "AP1", "CH1", "AP1"}, 16.61},
+	{[]string{"CF1", "CF1", "CF1", "CF1"}, 22.46},
+	{[]string{"CF1", "CF1", "CF1"}, 22.46},
 }
 
 func TestBaskets(t *testing.T) {

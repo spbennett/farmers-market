@@ -80,48 +80,8 @@ func checkout(basket []string, market Market) Register {
 
 	// Iterate through each discount and apply to our basket.
 	for key := range discounts {
-		var discount = discounts[key]
-		var discountAppliedCount = 0
-
-		// Unpack current discount.
-		var qualifyingItem = discount.qualifyingItem
-		var qualifyingItemQuantity = discount.qualifyingItemQuantity
-		var discountedItem = discount.discountedItem
-		var discountedItemQuantity = discount.discountedItemQuantity
-		var discountPerDiscountedItem = discount.discountPerDiscountedItem
-
-		// Check if enough qualifying items are found.
-		if basketQuantity[qualifyingItem] >= qualifyingItemQuantity && basketQuantity[discountedItem] > 0 {
-			var qualifyingItemBasePrice = inventory[qualifyingItem].basePrice
-			var discountItemBasePrice = inventory[discountedItem].basePrice
-			var discountItemQuantity = discount.discountedItemQuantity
-
-			// When discountedItemQuantity is zero, there are no limits to applying the discount.
-			if discountItemQuantity == 0 {
-				var discountPrice = discount.discountPerDiscountedItem * discountItemBasePrice
-				for i := basketQuantity[qualifyingItem]; i > 0; i-- {
-					var entry = Line{qualifyingItem, qualifyingItemBasePrice, discount.id, discountPrice * -1}
-					register.lines = append(register.lines, entry)
-					basketQuantity[qualifyingItem]--
-				}
-			} else {
-				var discountPrice = discountPerDiscountedItem * float32(discountItemQuantity) * discountItemBasePrice
-
-				var entry = Line{qualifyingItem, qualifyingItemBasePrice, discount.id, discountPrice * -1}
-				register.lines = append(register.lines, entry)
-
-				// Remove discounted items from being counted twice.
-				basketQuantity[qualifyingItem] = basketQuantity[qualifyingItem] - discountedItemQuantity
-			}
-
-			// Apply a discount.
-			discountAppliedCount++
-		}
-
-		// Stop applying this discount when we reach our discount limit.  Limit of 0 is unlimited.
-		if discountAppliedCount >= discount.limit && discount.limit != 0 {
-			continue
-		}
+		lines := processDiscount(discounts[key], basketQuantity, inventory)
+		register.lines = append(register.lines, lines...)
 	}
 
 	// Zero out remaining basket items with no discount.
@@ -136,4 +96,65 @@ func checkout(basket []string, market Market) Register {
 	}
 
 	return register
+}
+
+// processDiscount takes basket items that qualify for the discount and moves them to registry entries.
+// Remaining items are left in basket for other discounts.
+func processDiscount(discount Discount, basketQuantity map[string]int, inventory map[string]Product) []Line {
+	var lines []Line
+	var entry Line
+	var discountAppliedCount = 0
+
+	// Unpack current discount.
+	var qualifyingItem = discount.qualifyingItem
+	var qualifyingItemQuantity = discount.qualifyingItemQuantity
+	var discountedItem = discount.discountedItem
+	var discountedItemQuantity = discount.discountedItemQuantity
+	var discountPerDiscountedItem = discount.discountPerDiscountedItem
+	var limit = discount.limit
+
+	// Stop applying this discount when we reach our discount limit.
+	for discountAppliedCount = 0; discountAppliedCount <= limit; discountAppliedCount++ {
+
+		// Check if enough qualifying items are found.
+		if basketQuantity[qualifyingItem] >= qualifyingItemQuantity && basketQuantity[discountedItem] >= discountedItemQuantity {
+			var discountPrice float32
+			var discountItemBasePrice = inventory[discountedItem].basePrice
+			var qualifyingItemBasePrice = inventory[qualifyingItem].basePrice
+
+			// When discountedItemQuantity is zero, all discountedItems receive the discount.
+			if discountedItemQuantity == 0 {
+
+				// Calculate discount to apply (Avoid divide by zero error).
+				discountPrice = discountPerDiscountedItem * discountItemBasePrice
+
+				// Consume all of the discounted items.
+				for i := basketQuantity[qualifyingItem]; i > 0; i-- {
+					basketQuantity[qualifyingItem]--
+					entry = Line{discountedItem, discountItemBasePrice, discount.id, discountPrice * -1}
+					lines = append(lines, entry)
+				}
+			} else {
+
+				// Calculate discount to apply (Avoid divide by zero error).
+				discountPrice = discountPerDiscountedItem * float32(discountedItemQuantity) * discountItemBasePrice
+
+				// Consume discounted items.
+				basketQuantity[discountedItem] = basketQuantity[discountedItem] - discountedItemQuantity
+				entry = Line{discountedItem, discountItemBasePrice, discount.id, discountPrice * -1}
+				lines = append(lines, entry)
+
+				// Consume the qualifying items.
+				basketQuantity[qualifyingItem]--
+				entry = Line{qualifyingItem, qualifyingItemBasePrice, "", 0}
+				lines = append(lines, entry)
+			}
+
+			// Loop unlimited specials.
+			if limit == 0 {
+				discountAppliedCount--
+			}
+		}
+	}
+	return lines
 }

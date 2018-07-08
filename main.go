@@ -12,7 +12,7 @@ var items []string
 // Message stores IDs from incoming HTTP messages
 // {"id": "CF1"}
 type Message struct {
-	id string `json:"id"`
+	ID string `json:"id"`
 }
 
 // Serve two main paths: /add and /checkout.
@@ -52,8 +52,8 @@ func basketHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, reqError, 400)
 		return
 	}
-	fmt.Println(fmt.Sprintf("%s received", msg.id))
+	fmt.Println(fmt.Sprintf("%s received", msg.ID))
 
 	// Append new item to list.
-	items = append(items, msg.id)
+	items = append(items, msg.ID)
 }

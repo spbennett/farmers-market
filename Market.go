@@ -61,7 +61,7 @@ func loadDiscounts() map[string]Discount {
 // printBasket pretty prints the current shopping basket
 // to easily see quantities of given items.
 func printBasket(basket []string) {
-	var total int = 0
+	var total int
 	basketQuantity := listToQuantityMap(basket)
 
 	// Print contents of basket
