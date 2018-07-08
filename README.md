@@ -54,3 +54,27 @@ go test
 Tested on Ubuntu 18.04 and OSX 10.13.5 with the following:
 - Golang v1.10
 - Docker v18.03
+
+## Requirements
+
+### Design
+- Supports generalized discount schema.
+- Webservice implementation.
+- API separation.
+
+### Testing
+- Passes included test cases
+- Added additional test cases.
+- Tested on OSX, Linux and as container.
+
+### Accuracy
+- Output matches specification.
+- Added some additional edge cases.
+
+### Flexibility
+- New discounts/specials can be added to static list.
+- New products could be easily added to static list.
+- Consumption of data could be easily added via CSV.
+
+### Containerization
+- Includes build script to create docker container ready to host working webservice.
